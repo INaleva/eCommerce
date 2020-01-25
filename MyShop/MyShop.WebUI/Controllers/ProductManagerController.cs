@@ -4,6 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
 
 namespace MyShop.WebUI.Controllers
@@ -11,10 +12,12 @@ namespace MyShop.WebUI.Controllers
     public class ProductManagerController : Controller
     {
         ProductRepository context;
+        ProductCategoryRepository productCategories;
 
         public ProductManagerController()
         {
             context = new ProductRepository();
+            productCategories = new ProductCategoryRepository();
         }
 
         // GET: ProductManager
@@ -26,8 +29,10 @@ namespace MyShop.WebUI.Controllers
 
         public ActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+            viewModel.Product = new Product();
+            viewModel.ProductCatergories = productCategories.Collction();
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -48,14 +53,17 @@ namespace MyShop.WebUI.Controllers
 
         public ActionResult Edit(string Id)
         {
-            Product product = context.Find(Id);
-            if(product == null)
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+            viewModel.Product = context.Find(Id);
+            viewModel.ProductCatergories = productCategories.Collction();
+
+            if (viewModel.Product == null)
             {
                 return HttpNotFound();
             }
             else
             {
-                return View(product);
+                return View(viewModel);
             }
         }
 
@@ -77,7 +85,6 @@ namespace MyShop.WebUI.Controllers
                 {
                     productToEdit.Description = product.Description;
                     productToEdit.Category = product.Category;
-                    productToEdit.Id = product.Id;
                     productToEdit.Image = product.Image;
                     productToEdit.Name = product.Name;
                     productToEdit.Price = product.Price;
